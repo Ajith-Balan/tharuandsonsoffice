@@ -8,8 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 const Layout = ({
   children,
   title = "Tharu & Sons",
-  description = "Explore premium wooden furniture and home décor at Tharu & Sons. Handcrafted designs that blend tradition and modernity.",
-  keywords = "Tharu & Sons, wooden furniture, handcrafted, home décor, sustainable wood, furniture design",
+  description = "Tharu & Sons provides laundry, linen management, room services, mechanized cleaning, and onboard housekeeping for Indian Railway and other sectors.",
+  keywords = "Tharu & Sons, railway contract, mcc, ernakulamm",
   author = "ajith-balan",
 }) => {
   return (
