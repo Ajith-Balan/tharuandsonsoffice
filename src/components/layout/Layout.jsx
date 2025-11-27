@@ -35,12 +35,12 @@ const Layout = ({
 
       <Header />
 
-      <main className="flex-grow pt-20 bg-gray-50 min-h-screen">
+      <main className="flex-grow  bg-gray-50 min-h-screen">
         <ToastContainer />
         {children}
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

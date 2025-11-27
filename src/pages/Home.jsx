@@ -17,8 +17,7 @@ import { MdLocalLaundryService, MdCleaningServices } from "react-icons/md";
 import { GiPlatform  } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
-import Layout from "../components/layout/Layout";
-
+import Layout from "../components/Layout/Layout";
 // New railway-themed palette and assets
 const images = [
   {
@@ -159,7 +158,7 @@ const Home = () => {
   ];
 
   return (
-    <Layout title="Tharu & Sons — Railway Services">
+    <Layout title="Tharu & Sons">
       <div className="font-space-grotesk">
         {/* HERO SLIDER - railway themed */}
         <div className="relative w-full h-[80vh] sm:h-screen overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">

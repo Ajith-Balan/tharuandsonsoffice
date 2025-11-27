@@ -3,8 +3,7 @@ import { IoMdTime } from "react-icons/io";
 import { FaUsers } from "react-icons/fa6";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import Layout from "../components/layout/Layout";
-
+import Layout from "../components/Layout/Layout";
 const About = () => {
   const satisfactionPercentage = 98;
 

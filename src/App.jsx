@@ -10,6 +10,7 @@ import Login from './pages/Auth/Login'
 import Dashboard from './pages/Admin/Dashboard'
 import ManagerDashboard from './pages/Manager/Dashboard'
 import Allsites from './pages/Admin/Allsites'
+import AllBills from './pages/Admin/AllBills'
 function App() {
 
   return (
@@ -21,9 +22,11 @@ function App() {
 
         
           <Route path='/dashboard' element={<AdminRoute/>}>
-            {/* ERS */}
+            
           <Route path='admin' element={<Dashboard/>}/>
+          <Route path='admin/allbills' element={<AllBills/>}/>
           <Route path='admin/allsites' element={<Allsites/>}/>
+          {/* ERS */}
 
           </Route>
 

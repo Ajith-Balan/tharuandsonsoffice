@@ -26,7 +26,7 @@ const Header = () => {
               <img
                 className="h-10 sm:h-12 w-auto rounded-md"
                 src="https://www.tharuandsons.in/wp-content/uploads/2023/04/logo-tagline-2.jpg"
-                alt="Tharu & Sons Logo"
+                alt="Tharu & Sons "
               />
             </Link>
 
@@ -82,10 +82,10 @@ const Header = () => {
 
       {/* Mobile Login Button */}
       {!auth.user && (
-        <div className="md:hidden fixed top-0 right-0 bg-teal-500 text-white py-2 px-4 rounded-bl-lg shadow-md z-50">
+        <div className="md:hidden top-0 right-0 bg-teal-500 text-white  px-4 rounded-bl-lg shadow-md z-50">
           <button
             onClick={() => navigate("/login")}
-            className="text-sm font-medium hover:bg-teal-600 px-2 py-1 rounded transition"
+            className="text-sm font-medium hover:bg-teal-600 px-2  rounded transition"
           >
             Login
           </button>

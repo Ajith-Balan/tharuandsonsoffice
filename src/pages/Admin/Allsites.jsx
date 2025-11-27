@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from "../../components/layout/Layout";
+import Layout from "../../components/Layout/Layout";
 import Adminpanel from "../../components/layout/Adminpanel";
 
 const Allsites = () => {
@@ -13,13 +13,14 @@ const Allsites = () => {
 
   return (
     <Layout title="All Sites">
-      <div className=" bg-gray-50  px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800  text-center">
+      <div className=" bg-gray-50   sm:px-6 lg:px-8">
+       
+
+        <div className=" flex flex-col lg:flex-row min-h-screen bg-gray-100">
+          <Adminpanel/>
+           <h1 className="text-2xl sm:text-3xl my-10 font-bold text-gray-800  text-center">
           All Sites
         </h1>
-
-        <div className=" flex gap-10">
-          <Adminpanel/>
           <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
             <thead className="bg-indigo-600 text-white">
               <tr>

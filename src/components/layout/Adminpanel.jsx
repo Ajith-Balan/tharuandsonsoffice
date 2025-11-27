@@ -65,7 +65,7 @@ const Adminpanel = () => {
 
   const menuItems = [
     { to: "/dashboard/admin", label: "Home", icon: <FaHome /> },
-    { to: "/dashboard/admin/bills", label: "Bill Details", icon: <FaFileInvoiceDollar /> },
+    { to: "/dashboard/admin/allbills", label: "All Bills", icon: <FaFileInvoiceDollar /> },
     { to: "/dashboard/admin/allsites", label: "All Sites", icon: <FaBroadcastTower /> },
     // { to: "/dashboard/admin/completed", label: "Completed Works", icon: <FaCheckCircle /> },
     // { to: "/dashboard/admin/staffdetails", label: "Managers ", icon: <FaUsers /> },
