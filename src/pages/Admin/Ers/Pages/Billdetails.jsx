@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/layout/Layout";
+import Layout from "../../../../components/layout/Layout";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/Auth";
+import { useAuth } from "../../../../context/Auth";
 import axios from "axios";
-import AdminMenu from "../../components/layout/AdminMenu";
+import AdminMenu from "../AdminMenu.jsx";
 import { FaEdit, FaSave, FaTrash ,FaTimes } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -125,7 +125,7 @@ const Billdetails = () => {
 
 
   return (
-    <Layout title="Bill Details - Manager">
+    <Layout title="Bill Details - Admin">
       <div className="flex flex-col lg:flex-row bg-gray-100 min-h-screen">
         <AdminMenu />
         <main className="flex-1 p-4">

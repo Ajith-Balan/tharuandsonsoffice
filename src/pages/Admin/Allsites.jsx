@@ -1,14 +1,12 @@
 import React from "react";
 import Layout from "../../components/Layout/Layout";
 import Adminpanel from "../../components/layout/Adminpanel";
-
+import { Link } from "react-router-dom";
 const Allsites = () => {
   // Example site data — you can later fetch this from your backend
   const sites = [
-    { name: "ERS", manager: "Ramesh Kumar", phone: "9876543210" },
-    { name: "TVM", manager: "Anil Raj", phone: "9123456780" },
-    { name: "KLM", manager: "Vijay Menon", phone: "9988776655" },
-    { name: "EKM", manager: "Arun Dev", phone: "9090909090" },
+    { name: "ERS", manager: "Kiran Binoy", phone: "9876543210",link: "/dashboard/admin/ers/bills"},
+
   ];
 
   return (
@@ -37,11 +35,16 @@ const Allsites = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   } hover:bg-indigo-50 transition`}
                 >
+                  
+                 
                   <td className="py-3 px-4 font-medium text-gray-800">
+                    <Link to={site.link}> 
                     {site.name}
+                       </Link>
                   </td>
                   <td className="py-3 px-4 text-gray-700">{site.manager}</td>
                   <td className="py-3 px-4 text-gray-700">{site.phone}</td>
+
                 </tr>
               ))}
             </tbody>

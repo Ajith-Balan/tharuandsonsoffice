@@ -11,6 +11,7 @@ import Dashboard from './pages/Admin/Dashboard'
 import ManagerDashboard from './pages/Manager/Dashboard'
 import Allsites from './pages/Admin/Allsites'
 import AllBills from './pages/Admin/AllBills'
+import Billdetails from './pages/Admin/Ers/Pages/Billdetails'
 function App() {
 
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path='admin/allbills' element={<AllBills/>}/>
           <Route path='admin/allsites' element={<Allsites/>}/>
           {/* ERS */}
+           <Route path='admin/ers/bills' element={<Billdetails/>}/>
 
           </Route>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
 import {
   FaFileInvoiceDollar,
@@ -6,35 +6,74 @@ import {
   FaUsers,
   FaMapMarkedAlt,
   FaBars,
-  FaFilter 
+  FaFilter,
+  FaRupeeSign 
 } from "react-icons/fa";
 import { MdPendingActions } from "react-icons/md";
 import { BsCalendar2Event } from "react-icons/bs";
 import Adminpanel from "../../components/layout/Adminpanel";
 import { Link } from "react-router-dom";
-
+import { useAuth } from "../../context/Auth";
+import axios from "axios";
 const Dashboard = () => {
+    const [auth] = useAuth();
+  
     const [open, setOpen] = useState(false);
+  const [bills, setBills] = useState([]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
 const [selected, setSelected] = useState("all");
 
-  const sites = ["All","ERS", "TVM", "DELHI","TSR","SURAT","GOA"];
+  const sites = ["All","ERS"];
+  const formatINR = (num) =>
+  num.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+  });
 
-  const stats = {
-    totalBillValue: "₹18,40,000",
-    totalPenalty: "₹1,25,000",
-    totalSites: [
-      { name: "ERS", count: 8 },
-      { name: "TVM", count: 5 },
-      { name: "TSR", count: 7 },
-    ],
-    totalManagers: 12,
-    passedBills: "55",
-    pendingBills: "20",
-    expiringContracts: 4,
+const stats = {
+  totalBillValue: bills.reduce((sum, b) => sum + (b.billvalue || 0), 0),
+
+  totalPenalty: bills.reduce((sum, b) => sum + (b.penalty || 0), 0),
+
+  totalSites: [
+    { name: "ERS", count: 1 },
+  ],
+
+  totalManagers: 1,
+
+  passedBills: bills.filter(b => b.status === "Bill Passed").length,
+
+  pendingBills: bills.filter(b => b.status !== "Bill Passed").length,
+
+  expiringContracts: 4,
+};
+
+
+
+
+    const fetchBills = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/getbills`
+      );
+
+      const sortedBills = (res.data.bills || []).sort(
+        (a, b) => new Date(b.month + "-01") - new Date(a.month + "-01")
+      );
+
+      setBills(sortedBills);
+    } catch (err) {
+      console.error("Error fetching bills:", err);
+    }
   };
+
+  useEffect(() => {
+    if (auth?.user) fetchBills();
+  }, [auth?.user]);
+
 
   return (
     <Layout title="Admin Dashboard">
@@ -93,7 +132,7 @@ const [selected, setSelected] = useState("all");
                 <div>
                   <p className="text-gray-500 text-sm">Total Bill Value</p>
                   <h2 className="text-2xl font-bold text-gray-800">
-                    {stats.totalBillValue}
+                   <FaRupeeSign className="text-xl" /> {formatINR(stats.totalBillValue)}
                   </h2>
                 </div>
               </div>
@@ -106,7 +145,7 @@ const [selected, setSelected] = useState("all");
                 <div>
                   <p className="text-gray-500 text-sm">Total Penalty</p>
                   <h2 className="text-2xl font-bold text-gray-800">
-                    {stats.totalPenalty}
+                  <FaRupeeSign className="text-xl" />  {formatINR(stats.totalPenalty)}
                   </h2>
                 </div>
               </div>
@@ -119,7 +158,7 @@ const [selected, setSelected] = useState("all");
                 <div>
                   <p className="text-gray-500 text-sm">Total Sites</p>
                   <h2 className="text-2xl font-bold text-gray-800">
-                    {stats.totalSites.reduce((sum, site) => sum + site.count, 0)}
+                    1
                   </h2>
                 </div>
               </div>
@@ -172,7 +211,7 @@ const [selected, setSelected] = useState("all");
             </div>
 
             {/* Expiring Contracts */}
-            <div className="bg-gradient-to-r from-red-100 to-red-200 shadow-md rounded-2xl p-6 hover:shadow-lg transition-transform hover:scale-[1.02]">
+            {/* <div className="bg-gradient-to-r from-red-100 to-red-200 shadow-md rounded-2xl p-6 hover:shadow-lg transition-transform hover:scale-[1.02]">
               <div className="flex items-center">
                 <BsCalendar2Event className="text-red-600 text-3xl mr-4" />
                 <div>
@@ -184,7 +223,7 @@ const [selected, setSelected] = useState("all");
                   </h2>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Site Summary */}
