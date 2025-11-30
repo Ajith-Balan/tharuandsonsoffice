@@ -17,7 +17,7 @@ import { MdLocalLaundryService, MdCleaningServices } from "react-icons/md";
 import { GiPlatform  } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
-import Layout from "../components/Layout/Layout";
+import Layout from "../components/layout/Layout";
 // New railway-themed palette and assets
 const images = [
   {
