@@ -1,34 +1,59 @@
-
-import React, { useState,useEffect } from "react";
-
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/layout/Layout";
-
-import {
-  FaFileInvoiceDollar,
-  FaExclamationTriangle,
-  FaUsers,
-  FaMapMarkedAlt,
-  FaBars,
-  FaFilter,
-  FaRupeeSign 
-} from "react-icons/fa";
-import { MdPendingActions } from "react-icons/md";
-import { BsCalendar2Event } from "react-icons/bs";
-import Adminpanel from "../../components/layout/Adminpanel";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/Auth";
 import axios from "axios";
+import Adminpanel from "../../components/layout/Adminpanel";
+import { FaEdit, FaSave, FaTrash ,FaTimes, FaFileInvoiceDollar, FaExclamationTriangle } from "react-icons/fa";
+import { toast } from "react-toastify";
+
 const Dashboard = () => {
-    const [auth] = useAuth();
-  
-    const [open, setOpen] = useState(false);
+  const [auth] = useAuth();
   const [bills, setBills] = useState([]);
+  const [billstvm, settvmBills] = useState([]);
+  
+  const [activeTab, setActiveTab] = useState("mcc");
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const TABS = [
+    { id: "ERMCD", label: "ERMCD" },
 
-const [selected, setSelected] = useState("all");
+  ];
 
-  const sites = ["All","ERS"];
+  const fetchBills = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/getbills`
+      );
+      const sortedBills = (res.data.bills || []).sort(
+        (a, b) => new Date(b.month + "-01") - new Date(a.month + "-01")
+      );
+      setBills(sortedBills);
+    } catch (err) {
+      console.error("Error fetching bills:", err);
+    }
+  };
+
+    const fetchBillstvm = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/getbillstvm`
+      );
+      const sortedBills = (res.data.bills || []).sort(
+        (a, b) => new Date(b.month + "-01") - new Date(a.month + "-01")
+      );
+      settvmBills(sortedBills);
+    } catch (err) {
+      console.error("Error fetching bills:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (auth?.user) {fetchBills();
+      fetchBillstvm();
+    }
+  }, [auth?.user]);
+
+
   const formatINR = (num) =>
   num.toLocaleString("en-IN", {
     style: "currency",
@@ -36,221 +61,223 @@ const [selected, setSelected] = useState("all");
     minimumFractionDigits: 0,
   });
 
-const stats = {
-  totalBillValue: bills.reduce((sum, b) => sum + (b.billvalue || 0), 0),
-
-  totalPenalty: bills.reduce((sum, b) => sum + (b.penalty || 0), 0),
-
-  totalSites: [
-    { name: "ERS", count: 1 },
-  ],
-
-  totalManagers: 1,
-
-  passedBills: bills.filter(b => b.status === "Bill Passed").length,
-
-  pendingBills: bills.filter(b => b.status !== "Bill Passed").length,
-
-  expiringContracts: 4,
-};
 
 
+  const filteredBills = [...bills, ...billstvm];
+
+  const totalBillValue = filteredBills.reduce(
+    (sum, b) => sum + (Number(b.billvalue) || 0),
+    0
+  );
+  const totalNetAmount = filteredBills.reduce(
+    (sum, b) => sum + (Number(b.netamount) || 0),
+    0
+  );
+  const totalPenalty = filteredBills.reduce(
+    (sum, b) => sum + (Number(b.penalty) || 0),
+    0
+  );
+  const contractperiod =
+    filteredBills.length > 0 ? filteredBills[0].contractperiod : "—";
 
 
-    const fetchBills = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/getbills`
-      );
 
-      const sortedBills = (res.data.bills || []).sort(
-        (a, b) => new Date(b.month + "-01") - new Date(a.month + "-01")
-      );
+ const pendingBills = filteredBills.filter((bill) => bill.status !== "Bill Passed");
+  const passedBills = filteredBills.filter((bill) => bill.status === "Bill Passed");
+const passedBillsSorted = [...passedBills].sort(
+  (a, b) => new Date(a.month) - new Date(b.month)
+);
 
-      setBills(sortedBills);
-    } catch (err) {
-      console.error("Error fetching bills:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (auth?.user) fetchBills();
-  }, [auth?.user]);
+const lastPassedMonth = passedBillsSorted.length
+  ? new Date(passedBillsSorted.at(-1).month).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    })
+  : "No bills passed yet";
 
 
   return (
-    <Layout title="Admin Dashboard">
-      <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100">
-     
-          <Adminpanel />
-        
-        {/* Main Content */}
-        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 overflow-x-hidden">
-       <div className="relative inline-block">
-      {/* Filter button */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-all"
-      >
-        <FaFilter size={16} />
-        {selected}
-      </button>
+    <Layout title="Bill Details - Admin">
+      <div className="flex flex-col lg:flex-row bg-gray-100 min-h-screen">
+        <Adminpanel/>
+        <main className="flex-1 p-4">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          
+       
+          </div>
 
-      {/* Dropdown panel */}
-      {open && (
-        <div className="absolute mt-2 w-40 bg-white shadow-lg rounded-xl border border-gray-200 z-50">
-          {sites.map((site, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setSelected(site);
-                setOpen(false);
-              }}
-              className={`w-full text-left px-4 py-3 border-b last:border-none transition-all duration-200
-                ${
-                  selected === site
-                    ? "bg-blue-600 text-white font-semibold"
-                    : "bg-white text-gray-700 hover:bg-blue-50"
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  activeTab === tab.id
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
-            >
-              {site}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-        
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-          {/* Heading */}
-          <h1 className="hidden lg:block text-3xl font-bold text-gray-800 mb-8 text-center">
-            Admin Dashboard Overview
-          </h1>
-
-          {/* Stats Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            {/* Total Bill */}
-            <div className="bg-white shadow-md rounded-2xl p-6 border-l-4 border-green-500 hover:shadow-lg transition-transform hover:scale-[1.02]">
-              <div className="flex items-center">
-                <FaFileInvoiceDollar className="text-green-500 text-4xl mr-4" />
-                <div>
-                  <p className="text-gray-500 text-sm">Total Bill Value</p>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                   <FaRupeeSign className="text-xl" /> {formatINR(stats.totalBillValue)}
-                  </h2>
-                </div>
-              </div>
+          {/* Summary */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white shadow-md text-center     rounded-2xl p-6 border-l-4 text-blue-600 hover:shadow-lg transition-transform hover:scale-[1.02]">
+               <FaFileInvoiceDollar className="text-green-500 " />
+              <h2 className="text-gray-700 font-semibold">Bill Value</h2> 
+              <p className="text-blue-600 font-bold">{formatINR(totalBillValue)}</p>
             </div>
-
-            {/* Total Penalty */}
-            <div className="bg-white shadow-md rounded-2xl p-6 border-l-4 border-red-500 hover:shadow-lg transition-transform hover:scale-[1.02]">
-              <div className="flex items-center">
-                <FaExclamationTriangle className="text-red-500 text-4xl mr-4" />
-                <div>
-                  <p className="text-gray-500 text-sm">Total Penalty</p>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                  <FaRupeeSign className="text-xl" />  {formatINR(stats.totalPenalty)}
-                  </h2>
-                </div>
-              </div>
+            <div className="bg-white shadow-md text-center     rounded-2xl p-6 border-l-4 text-green-600 hover:shadow-lg transition-transform hover:scale-[1.02]">
+               <FaFileInvoiceDollar className="text-green-500  mr-4" />
+              <h2 className="text-gray-700 font-semibold">Net Amount</h2>
+              <p className="text-green-600 font-bold">{formatINR(totalNetAmount)}</p>
             </div>
-
-            {/* Total Sites */}
-            <Link to={'allsites'} className="bg-white shadow-md rounded-2xl p-6 border-l-4 border-blue-500 hover:shadow-lg transition-transform hover:scale-[1.02]">
-              <div className="flex items-center">
-                <FaMapMarkedAlt className="text-blue-500 text-4xl mr-4" />
-                <div>
-                  <p className="text-gray-500 text-sm">Total Sites</p>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    1
-                  </h2>
-                </div>
-              </div>
-            </Link>
-
-            {/* Total Managers */}
-            {/* <div className="bg-white shadow-md rounded-2xl p-6 border-l-4 border-purple-500 hover:shadow-lg transition-transform hover:scale-[1.02]">
-              <div className="flex items-center">
-                <FaUsers className="text-purple-500 text-4xl mr-4" />
-                <div>
-                  <p className="text-gray-500 text-sm">Site Managers</p>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {stats.totalManagers}
-                  </h2>
-                </div>
-              </div>
+            <div className="bg-white shadow-md text-center     rounded-2xl p-6 border-l-4 text-red-600 hover:shadow-lg transition-transform hover:scale-[1.02]">
+                   <FaExclamationTriangle className="text-red-500  mr-4" />
+              <h2 className="text-gray-700 font-semibold">Penalty</h2>
+              <p className="text-red-600 font-bold">{formatINR(totalPenalty)}</p>
+            </div>
+            {/* <div className="bg-white shadow-md text-center     rounded-2xl p-6 border-l-4 text-purple-600 hover:shadow-lg transition-transform hover:scale-[1.02]">
+              <h2 className="text-gray-700 font-semibold">Contract Period</h2>
+              <p className="text-purple-600 font-bold">01/10/2024 - 01/10/2026</p>
             </div> */}
           </div>
 
-          {/* Middle Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {/* Passed Bills */}
-            <div className="bg-gradient-to-r from-green-100 to-green-200 shadow-md rounded-2xl p-6 hover:shadow-lg transition-transform hover:scale-[1.02]">
-              <div className="flex items-center">
-                <FaFileInvoiceDollar className="text-green-700 text-3xl mr-4" />
-                <div>
-                  <p className="text-green-700 text-sm font-medium">
-                    Passed Bills
-                  </p>
-                  <h2 className="text-2xl font-semibold text-green-900">
-                    {stats.passedBills}
-                  </h2>
-                </div>
-              </div>
-            </div>
-
-            {/* Pending Bills */}
-            <div className="bg-gradient-to-r from-yellow-100 to-yellow-200 shadow-md rounded-2xl p-6 hover:shadow-lg transition-transform hover:scale-[1.02]">
-              <div className="flex items-center">
-                <MdPendingActions className="text-yellow-600 text-3xl mr-4" />
-                <div>
-                  <p className="text-yellow-600 text-sm font-medium">
-                    Pending Bills
-                  </p>
-                  <h2 className="text-2xl font-semibold text-yellow-800">
-                    {stats.pendingBills}
-                  </h2>
-                </div>
-              </div>
-            </div>
-
-            {/* Expiring Contracts */}
-            {/* <div className="bg-gradient-to-r from-red-100 to-red-200 shadow-md rounded-2xl p-6 hover:shadow-lg transition-transform hover:scale-[1.02]">
-              <div className="flex items-center">
-                <BsCalendar2Event className="text-red-600 text-3xl mr-4" />
-                <div>
-                  <p className="text-red-600 text-sm font-medium">
-                    Expiring Contracts (1 month)
-                  </p>
-                  <h2 className="text-2xl font-semibold text-red-800">
-                    {stats.expiringContracts}
-                  </h2>
-                </div>
-              </div>
-            </div> */}
+                  {/* ====== Summary Section ====== */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div className="bg-white p-4 rounded-2xl shadow-md text-center">
+            <h2 className="text-gray-600 text-sm">Last Passed Bill Month</h2>
+            <p className="text-lg font-semibold text-gray-800 mt-1">{lastPassedMonth}</p>
           </div>
 
-          {/* Site Summary */}
-          {/* <div className="mt-10 bg-white shadow-md rounded-2xl p-6">
-            <h2 className="text-xl font-bold text-gray-700 mb-4 flex items-center">
-              Site Summary
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {stats.totalSites.map((site, i) => (
-                <div
-                  key={i}
-                  className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl p-4 flex justify-between items-center hover:shadow-md transition-transform hover:scale-[1.02]"
-                >
-                  <span className="text-gray-700 font-semibold">
-                    {site.name}
-                  </span>
-                  <span className="text-lg font-bold text-blue-800">
-                    {site.count}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div> */}
+          <div className="bg-white p-4 rounded-2xl shadow-md text-center">
+            <h2 className="text-gray-600 text-sm">Pending Bills</h2>
+            <p className="text-lg font-semibold text-red-600 mt-1">{pendingBills.length}</p>
+          </div>
         </div>
+
+          {/* Bills */}
+          {filteredBills.length === 0 ? (
+            <p className="text-gray-600 text-center">
+              No bills found for {activeTab.toUpperCase()}.
+            </p>
+          ) : (
+            <>
+              {/* 💻 Desktop / Tablet View */}
+              <div className="hidden sm:block overflow-x-auto bg-white rounded-xl shadow border border-gray-200">
+                <table className="min-w-full text-sm text-gray-700">
+                  <thead className="bg-gray-100 text-gray-800">
+                    <tr>
+                      <th className="px-3 py-2 border">Month</th>
+                      <th className="px-3 py-2 border">Bill Value</th>
+                      <th className="px-3 py-2 border">Net Amount</th>
+                      <th className="px-3 py-2 border">Penalty</th>
+                      <th className="px-3 py-2 border">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBills.map((bill) => (
+                      <tr
+                        key={bill._id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-3 py-2 border text-center">
+                          {new Date(bill.month + "-01").toLocaleString(
+                            "default",
+                            { month: "long", year: "numeric" }
+                          )
+                          
+                          }
+                          <br />
+                          <h2 className="bold">{bill.work}</h2>
+                          
+                        </td>
+
+                        {["billvalue", "netamount", "penalty", ].map(
+                          (field) => (
+                            <td key={field} className="px-3 py-2 border text-center">
+                            {(
+                                formatINR(bill[field])
+                              )}
+                            </td>
+                          )
+                        )}
+
+                        <td className="px-3 py-2 border text-center">
+                           (
+                            <span
+                              className={`${
+                                bill.status === "Bill Passed"
+                                  ? "text-green-600 font-semibold"
+                                  : "text-gray-600"
+                              }`}
+                            >
+                              {bill.status || "N/A"}
+                            </span>
+                          )
+                        </td>
+
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 📱 Mobile View - Card Layout */}
+              <div className="block sm:hidden space-y-4">
+                {filteredBills.map((bill) => (
+                  <div
+                    key={bill._id}
+                    className="bg-white p-4 rounded-lg shadow border border-gray-200"
+                  >
+                    <div className="flex justify-between mb-2">
+                      <span className="font-semibold text-gray-700">
+                        {new Date(bill.month + "-01").toLocaleString("default", {
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                     
+                    </div>
+
+                    {["billvalue", "netamount", "penalty", ].map(
+                      (field) => (
+                        <p key={field} className="text-sm text-gray-700 mb-1">
+                          <span className="font-medium capitalize">
+                            {field.replace(/([A-Z])/g, " $1")}:
+                          </span>{" "}
+                          ({
+                            formatINR(bill[field])
+                          }
+                          )
+                        </p>
+                      )
+                    )}
+
+                    <p className="text-sm text-gray-700">
+                      <span className="font-medium">Status:</span>{" "}
+                    (
+                        <span
+                          className={`${
+                            bill.status === "Bill Passed"
+                              ? "text-green-600 font-semibold"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          {bill.status || "N/A"}
+                        </span>
+                      )
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </main>
       </div>
     </Layout>
   );

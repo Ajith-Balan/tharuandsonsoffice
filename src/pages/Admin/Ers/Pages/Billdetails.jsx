@@ -41,54 +41,15 @@ const Billdetails = () => {
     if (auth?.user) fetchBills();
   }, [auth?.user]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this bill?")) return;
-    try {
-      await axios.delete(
-        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/delete-bill/${id}`
-      );
-      toast.success("Bill Deleted Successfully");
-      fetchBills();
-    } catch {
-      toast.error("Error deleting bill");
-    }
-  };
 
-  const handleEditClick = (bill) => {
-    setEditId(bill._id);
-    setEditedData({
-      netamount: bill.netamount,
-      billvalue: bill.billvalue,
-      penalty: bill.penalty,
-      consumedcoach: bill.consumedcoach,
-      status: bill.status || "",
-    });
-  };
-
-  const handleInputChange = (e) => {
-    setEditedData({ ...editedData, [e.target.name]: e.target.value });
-  };
-
-  const handleCancelEdit = () => {
-  setEditId(null); // exits edit mode
-};
+  const formatINR = (num) =>
+  num.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+  });
 
 
-  const handleSaveClick = async (id) => {
-        if (!window.confirm("Are you sure you want to Update this bill?")) return;
-
-    try {
-      await axios.put(
-        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-bill/${id}`,
-        editedData
-      );
-      toast.success("Bill Updated Successfully");
-      setEditId(null);
-      fetchBills();
-    } catch {
-      toast.error("Error updating bill");
-    }
-  };
 
   const filteredBills = bills.filter(
     (b) => b.work?.toLowerCase() === activeTab.toLowerCase()
@@ -127,19 +88,14 @@ const Billdetails = () => {
   return (
     <Layout title="Bill Details - Admin">
       <div className="flex flex-col lg:flex-row bg-gray-100 min-h-screen">
-        <AdminMenu />
+        <AdminMenu/>
         <main className="flex-1 p-4">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-3 sm:mb-0">
               Bill Details
             </h1>
-            <Link
-              to="/dashboard/manager/addbills"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              + Add Bill
-            </Link>
+       
           </div>
 
           {/* Tabs */}
@@ -163,15 +119,15 @@ const Billdetails = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white p-4 rounded-lg shadow text-center">
               <h2 className="text-gray-700 font-semibold">Bill Value</h2>
-              <p className="text-blue-600 font-bold">{totalBillValue}</p>
+              <p className="text-blue-600 font-bold">{formatINR(totalBillValue)}</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow text-center">
               <h2 className="text-gray-700 font-semibold">Net Amount</h2>
-              <p className="text-green-600 font-bold">{totalNetAmount}</p>
+              <p className="text-green-600 font-bold">{formatINR(totalNetAmount)}</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow text-center">
               <h2 className="text-gray-700 font-semibold">Penalty</h2>
-              <p className="text-red-600 font-bold">{totalPenalty}</p>
+              <p className="text-red-600 font-bold">{formatINR(totalPenalty)}</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow text-center">
               <h2 className="text-gray-700 font-semibold">Contract Period</h2>
@@ -209,7 +165,6 @@ const Billdetails = () => {
                       <th className="px-3 py-2 border">Net Amount</th>
                       <th className="px-3 py-2 border">Penalty</th>
                       <th className="px-3 py-2 border">Status</th>
-                      <th className="px-3 py-2 border text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -237,7 +192,7 @@ const Billdetails = () => {
                                   className="border rounded px-2 py-1 w-20 text-center"
                                 />
                               ) : (
-                                bill[field]
+                                formatINR(bill[field])
                               )}
                             </td>
                           )
@@ -271,46 +226,6 @@ const Billdetails = () => {
                             </span>
                           )}
                         </td>
-
-
-<td className="px-3 py-2 border text-center">
-  <div className="flex justify-center items-center gap-3">
-    {editId === bill._id ? (
-      <>
-        <button
-          onClick={() => handleSaveClick(bill._id)}
-          className="text-green-600 hover:text-green-800 transition-colors"
-          title="Save"
-        >
-          <FaSave size={18} />
-        </button>
-        <button
-          onClick={handleCancelEdit}
-          className="text-gray-500 hover:text-gray-700 transition-colors"
-          title="Cancel"
-        >
-          <FaTimes size={18} />
-        </button>
-      </>
-    ) : (
-      <button
-        onClick={() => handleEditClick(bill)}
-        className="text-blue-600 hover:text-blue-800 transition-colors"
-        title="Edit"
-      >
-        <FaEdit size={18} />
-      </button>
-    )}
-
-    <button
-      onClick={() => handleDelete(bill._id)}
-      className="text-red-600 hover:text-red-800 transition-colors"
-      title="Delete"
-    >
-      <FaTrash size={18} />
-    </button>
-  </div>
-</td>
 
                       </tr>
                     ))}

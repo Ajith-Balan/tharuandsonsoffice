@@ -64,16 +64,12 @@ const AdminMenu = () => {
   }, []);
 
   const menuItems = [
-    { to: "/dashboard/manager", label: "Home", icon: <FaHome /> },
+    { to: "/dashboard/admin", label: "Go Back", icon: <FaHome /> },
     { to: "/dashboard/manager/connect", label: "Connect", icon: <BsChatText /> },
-    { to: "/dashboard/manager/bills", label: "Bill Details", icon: <FaFileInvoiceDollar /> },
-    { to: "/dashboard/manager/addworkers", label: "Add Worker", icon: <FaUserPlus /> },
     { to: "/dashboard/manager/attendance", label: "Attendance", icon: <FaClipboardList /> },
-    { to: "/dashboard/manager/addsupervisors", label: "Add Supervisor", icon: <FaUserTie /> },
     { to: "/dashboard/manager/livework", label: "Live Works", icon: <FaBroadcastTower /> },
     { to: "/dashboard/manager/completed", label: "Completed Works", icon: <FaCheckCircle /> },
     { to: "/dashboard/manager/staffdetails", label: "Staff Details", icon: <FaUsers /> },
-    { to: "/dashboard/user", label: "Supervisor Tab", icon: <FaTrain /> },
   ];
 
   return (
@@ -101,7 +97,7 @@ const AdminMenu = () => {
         ${menuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         <h2 className="text-2xl font-bold text-red-600 mb-6 border-b pb-2 md:block hidden">
-          Quick Links
+          ERMCD
         </h2>
 
         <nav className="space-y-3 mt-4">
