@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/layout/Layout";
-import { useAuth } from "../../context/Auth";
+import Layout from "../../../../components/layout/Layout";
+import { useAuth } from "../../../../context/Auth";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaEdit } from "react-icons/fa";
-import AdminMenu from "../../components/layout/AdminMenu";
+import AdminMenu from "../AdminMenu";
 
 const LiveTrain = () => {
   const [auth] = useAuth();
@@ -23,7 +23,6 @@ const LiveTrain = () => {
     { id: "pit & yard", label: "Pit & Yard" },
   ];
 
-  // Fetch all live trains
   const fetchLiveTrains = async () => {
     try {
       setLoading(true);
@@ -32,13 +31,12 @@ const LiveTrain = () => {
       );
       setLiveTrains(res.data || []);
     } catch (error) {
-      console.error("Error fetching live trains:", error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch all supervisors
   const fetchSupervisors = async () => {
     try {
       const res = await axios.get(
@@ -54,20 +52,6 @@ const LiveTrain = () => {
     fetchLiveTrains();
     fetchSupervisors();
   }, []);
-
-  const handleMarkCompleted = async (id) => {
-            if (!window.confirm("Are you sure you want to Mark this Duty Completed?")) return;
-
-    try {
-      await axios.put(
-        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-mcctrain/${id}`,
-        editableData
-      );
-      fetchLiveTrains();
-    } catch (error) {
-      console.error("Error marking train completed:", error);
-    }
-  };
 
   const formatDateTime = (date) => {
     if (!date) return "";
@@ -86,18 +70,20 @@ const LiveTrain = () => {
       (train) => train.work?.toLowerCase() === activeTab.toLowerCase()
     );
 
-    if (!filteredTrains.length) {
+    if (!filteredTrains.length)
       return (
         <tr>
-          <td colSpan="7" className="text-center py-4 text-gray-500">
-            No live trains available in {activeTab.toUpperCase()}.
+          <td
+            colSpan="7"
+            className="py-5 text-gray-500 text-center bg-white rounded-lg"
+          >
+            No live trains available in {activeTab.toUpperCase()}
           </td>
         </tr>
       );
-    }
 
     const totalWorkers = filteredTrains.reduce(
-      (sum, train) => sum + (train.workers?.length || 0),
+      (sum, t) => sum + (t.workers?.length || 0),
       0
     );
 
@@ -111,145 +97,134 @@ const LiveTrain = () => {
               (sup) => sup._id === train.supervisor
             );
 
+            const multiplier =
+              activeTab === "bio"
+                ? 0.06
+                : activeTab === "acca"
+                ? 0.65
+                : activeTab === "mcc"
+                ? 0.6
+                : null;
+
+            const diff =
+              multiplier !== null
+                ? Math.round(
+                    (train.workers?.length || 0) -
+                      train.totalcoach * multiplier
+                  )
+                : null;
+
+            const diffColor =
+              diff === null
+                ? "bg-gray-200"
+                : diff < 0
+                ? "bg-red-100 text-red-700"
+                : diff > 0
+                ? "bg-green-100 text-green-700"
+                : "bg-yellow-100 text-yellow-700";
+
             return (
               <tr
                 key={train._id}
-                className="hover:bg-gray-50 odd:bg-white even:bg-gray-50"
+                className="hover:bg-gray-50 transition-all duration-300 border-b"
               >
-                <td className="border px-2 md:px-4 py-2">{train.trainno}</td>
-                <td className="border px-2 md:px-4 py-2 capitalize">{train.status}</td>
-                <td className="border px-2 md:px-4 py-2">{formatDateTime(train.createdAt)}</td>
-                <td className="border px-2 md:px-4 py-2">{train.workers?.length || 0}</td>
-        <td
-  className={`border px-2 md:px-4 py-2 text-center ${
-    (() => {
-      let multiplier =
-        activeTab === "bio"
-          ? 0.06
-          : activeTab === "acca"
-          ? 0.65
-          : activeTab === "mcc"
-          ? 0.6
-          : null;
+                <td className="px-4 py-3">{train.trainno}</td>
+                <td className="px-4 py-3 capitalize">{train.status}</td>
+                <td className="px-4 py-3">{formatDateTime(train.createdAt)}</td>
+                <td className="px-4 py-3">{train.workers?.length || 0}</td>
 
-      if (multiplier === null) return "bg-gray-100"; // no calculation
-
-      const diff = Math.round(
-        (train.workers?.length || 0) - train.totalcoach * multiplier
-      );
-
-      return diff < 0 ? "bg-red-500" : diff > 0 ? "bg-green-500" : "bg-yellow-100";
-    })()
-  }`}
->
-  {(() => {
-    let multiplier =
-      activeTab === "bio"
-        ? 0.06
-        : activeTab === "acca"
-        ? 0.65
-        : activeTab === "mcc"
-        ? 0.6
-        : null;
-
-    if (multiplier === null) return 0;
-
-    const diff = Math.round(
-      (train.workers?.length || 0) - train.totalcoach * multiplier
-    );
-
-    return Math.abs(diff) || 0;
-  })()}
-</td>
-
-
-
-                <td className="border px-2 md:px-4 py-2">
-                  {train.supervisor ? supervisorData?.name || "Unknown" : "Not Assigned"}
+                <td className={`px-4 py-3 text-center font-semibold ${diffColor}`}>
+                  {diff !== null ? Math.abs(diff || 0) : 0}
                 </td>
-                <td className="border px-2 md:px-4 py-2">
-                  <div className="flex flex-wrap gap-2">
-                    {train.status !== "completed" && (
-                      <button
-                        onClick={() => handleMarkCompleted(train._id)}
-                        className="text-sm bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                      >
-                        Mark Completed
-                      </button>
-                    )}
-                    <Link
-                      to={`/dashboard/manager/traindetail/${train._id}`}
-                      className="text-sm bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"
-                    >
-                      <FaEdit />
-                    </Link>
-                  </div>
+
+                <td className="px-4 py-3">
+                  {train.supervisor
+                    ? supervisorData?.name || "Unknown"
+                    : "Not Assigned"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <Link
+                    to={`/dashboard/admin/ers/traindetails/${train._id}`}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-2 text-sm"
+                  >
+                    <FaEdit />
+                  </Link>
                 </td>
               </tr>
             );
           })}
 
-        <tr className="bg-gray-200 font-semibold">
-          <td colSpan="3" className="border px-2 md:px-4 py-2 text-right">
+        {/* Total row */}
+        <tr className="bg-gray-100 font-semibold">
+          <td colSpan="3" className="px-4 py-3 text-right">
             Total Workers
           </td>
-          <td className="border px-2 md:px-4 py-2">{totalWorkers}</td>
-          <td colSpan="3" className="border px-2 md:px-4 py-2"></td>
+          <td className="px-4 py-3">{totalWorkers}</td>
+          <td colSpan="3" className="px-4 py-3"></td>
         </tr>
       </>
     );
   };
 
   return (
-    <Layout title="Live work - Manager">
+    <Layout title="Live Work - Manager">
       <div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
         <AdminMenu />
-        <div className="p-4 md:p-6 flex-1 w-full">
-          <h1 className="text-2xl font-bold mb-4">Live Trains Dashboard</h1>
+
+        <div className="flex-1 p-6">
+          <h1 className="text-3xl font-bold mb-6">📊 Live Trains Dashboard</h1>
 
           {/* Tabs */}
-          <ul className="flex overflow-x-auto border-b mb-4">
-            {TABS.map((tab) => (
-              <li
-                key={tab.id}
-                className={`cursor-pointer px-4 py-2 md:px-6 md:py-3 font-medium whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? "border-b-2 border-red-500 text-red-500"
-                    : "text-gray-500"
-                }`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </li>
-            ))}
-          </ul>
+          <div className="bg-white p-2 rounded-lg shadow-sm mb-5 overflow-x-auto">
+            <ul className="flex gap-3 border-b">
+              {TABS.map((tab) => (
+                <li
+                  key={tab.id}
+                  className={`cursor-pointer px-4 py-2 rounded-t-lg text-sm font-medium transition-all ${
+                    activeTab === tab.id
+                      ? "text-red-600 border-b-2 border-red-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {/* Table */}
-          <div className="overflow-x-auto w-full">
-            <table className="min-w-full border border-gray-300 text-sm md:text-base">
-              <thead className="bg-gray-100 text-gray-700 uppercase text-xs md:text-sm">
-                <tr>
-                  <th className="border px-2 md:px-4 py-2">Train No</th>
-                  <th className="border px-2 md:px-4 py-2">Status</th>
-                  <th className="border px-2 md:px-4 py-2">Created At</th>
-                  <th className="border px-2 md:px-4 py-2">Workers</th>
-                  <th className="border px-2 md:px-4 py-2">Manpwr - Excess/Short</th>
-                  <th className="border px-2 md:px-4 py-2">Supervisor</th>
-                  <th className="border px-2 md:px-4 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
+          <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-200 text-gray-700 uppercase text-xs sticky top-0 shadow-sm">
                   <tr>
-                    <td colSpan="7" className="text-center py-4 text-gray-500">
-                      Loading...
-                    </td>
+                    <th className="px-4 py-3">Train No</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Created At</th>
+                    <th className="px-4 py-3">Workers</th>
+                    <th className="px-4 py-3">Manpwr ±</th>
+                    <th className="px-4 py-3">Supervisor</th>
+                    <th className="px-4 py-3">Actions</th>
                   </tr>
-                ) : (
-                  renderLiveTrainRows()
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td
+                        colSpan="7"
+                        className="py-4 text-center text-gray-500 animate-pulse"
+                      >
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : (
+                    renderLiveTrainRows()
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

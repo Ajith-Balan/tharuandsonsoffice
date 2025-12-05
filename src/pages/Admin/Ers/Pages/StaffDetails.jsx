@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/layout/Layout";
-import { useAuth } from "../../context/Auth";
+import Layout from "../../../../components/layout/Layout";
+import { useAuth } from "../../../../context/Auth";
 import axios from "axios";
 import { FaEdit } from "react-icons/fa";
-import AdminMenu from "../../components/layout/AdminMenu";
+import AdminMenu from "../AdminMenu";
 import { Link } from "react-router-dom";
 
 const StaffDetails = () => {
@@ -48,7 +48,7 @@ const StaffDetails = () => {
   // ✅ Pagination Calculation
   const indexOfLast = currentPage * workersPerPage;
   const indexOfFirst = indexOfLast - workersPerPage;
-  const currentWorkers = filteredWorkers.slice(indexOfFirst, indexOfLast);
+  const currentWorkers = filteredWorkers.sort((a, b) => a.name.localeCompare(b.name)) .slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredWorkers.length / workersPerPage);
 
   // ✅ Reset page when switching tabs
@@ -91,6 +91,8 @@ const StaffDetails = () => {
             <table className="min-w-full text-sm md:text-base border-collapse">
               <thead className="bg-gray-100">
                 <tr>
+                  <th className="px-2 md:px-4 py-2 text-left border-b">SL NO</th>
+
                   <th className="px-2 md:px-4 py-2 text-left border-b">Name</th>
                   <th className="px-2 md:px-4 py-2 text-left border-b">Phone</th>
                   <th className="px-2 md:px-4 py-2 text-left border-b">Emp ID</th>
@@ -101,8 +103,9 @@ const StaffDetails = () => {
               </thead>
               <tbody>
                 {currentWorkers.length > 0 ? (
-                  currentWorkers.map((s) => (
+                  currentWorkers.map((s,i) => (
                     <tr key={s._id} className="hover:bg-gray-50">
+                      <td className="px-2 md:px-4 py-2 border-b">{i+1}</td>
                       <td className="px-2 md:px-4 py-2 border-b">{s.name}</td>
                       <td className="px-2 md:px-4 py-2 border-b">{s.phone}</td>
                       <td className="px-2 md:px-4 py-2 border-b">{s.empid}</td>

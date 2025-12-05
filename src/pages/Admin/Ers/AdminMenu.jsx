@@ -65,11 +65,11 @@ const AdminMenu = () => {
 
   const menuItems = [
     { to: "/dashboard/admin", label: "Go Back", icon: <FaHome /> },
-    { to: "/dashboard/manager/connect", label: "Connect", icon: <BsChatText /> },
-    { to: "/dashboard/manager/attendance", label: "Attendance", icon: <FaClipboardList /> },
-    { to: "/dashboard/manager/livework", label: "Live Works", icon: <FaBroadcastTower /> },
-    { to: "/dashboard/manager/completed", label: "Completed Works", icon: <FaCheckCircle /> },
-    { to: "/dashboard/manager/staffdetails", label: "Staff Details", icon: <FaUsers /> },
+    { to: "/dashboard/admin/ers/connect", label: "Connect", icon: <BsChatText /> },
+    { to: "/dashboard/admin/ers/attendance", label: "Attendance", icon: <FaClipboardList /> },
+    { to: "/dashboard/admin/ers/live", label: "Live Works", icon: <FaBroadcastTower /> },
+    { to: "/dashboard/admin/ers/completed", label: "Completed Works", icon: <FaCheckCircle /> },
+    { to: "/dashboard/admin/ers/staffdetails", label: "Staff Details", icon: <FaUsers /> },
   ];
 
   return (

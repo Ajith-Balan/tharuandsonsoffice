@@ -8,7 +8,7 @@ const Allsites = () => {
     {
       name: "ERS",
       manager: "Kiran Binoy",
-      phone: "9876543210",
+      phone: "9747624958",
       link: "/dashboard/admin/ers/bills",
     },
   ];

@@ -74,14 +74,17 @@ const Billdetails = () => {
 
  const pendingBills = filteredBills.filter((bill) => bill.status !== "Bill Passed");
   const passedBills = filteredBills.filter((bill) => bill.status === "Bill Passed");
+const passedBillsSorted = [...passedBills].sort(
+  (a, b) => new Date(a.month) - new Date(b.month)
+);
+ 
+const lastPassedMonth = passedBillsSorted.length
+  ? new Date(passedBillsSorted.at(-1).month).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    })
+  : "No bills passed yet";
 
-  const lastPassedMonth =
-    passedBills.length > 0
-      ? new Date(passedBills[passedBills.length - 1].month).toLocaleString("default", {
-          month: "long",
-          year: "numeric",
-        })
-      : "No bills passed yet";
 
 
 

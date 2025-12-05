@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import Layout from '../../components/layout/Layout';
+import Layout from '../../../../components/layout/Layout';
 import axios from 'axios';
-import { useAuth } from '../../context/Auth';
+import { useAuth } from '../../../../context/Auth';
 import { useParams } from 'react-router-dom';
 import { FaEdit, FaSave } from 'react-icons/fa';
-import AdminMenu from '../../components/layout/AdminMenu'
+import AdminMenu from '../AdminMenu'
 
 const TrainDetails = () => {
   const [auth] = useAuth();
@@ -126,21 +126,8 @@ const TrainDetails = () => {
           <div className="bg-white p-4 md:p-6 rounded-lg shadow space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h1 className="text-2xl font-bold text-gray-800">Live Work Details</h1>
-              {editRowId === liveTrains._id ? (
-                <button
-                  onClick={() => handleSaveClick(liveTrains._id)}
-                  className="bg-green-600 w-full md:w-auto text-white px-4 py-2 rounded flex items-center gap-2 justify-center"
-                >
-                  <FaSave /> Save
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleEditClick(liveTrains)}
-                  className="bg-yellow-500 w-full md:w-auto text-white px-4 py-2 rounded flex items-center gap-2 justify-center"
-                >
-                  <FaEdit /> Edit
-                </button>
-              )}
+              
+              
             </div>
 
             {loading ? (

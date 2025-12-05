@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import Layout from "../../components/layout/Layout";
-import AdminMenu from "../../components/layout/AdminMenu";
-import { useAuth } from "../../context/Auth";
+import Layout from "../../../../components/layout/Layout";
+import AdminMenu from "../AdminMenu";
+import { useAuth } from "../../../../context/Auth";
 import axios from "axios";
 
 const Connect = () => {
